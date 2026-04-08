@@ -1,9 +1,11 @@
 # Base: shared PHP extensions
 FROM php:8.5-fpm-alpine AS base
 
-RUN apk add --no-cache postgresql-dev curl \
+RUN apk add --no-cache postgresql-dev curl linux-headers $PHPIZE_DEPS \
     && docker-php-ext-install pdo pdo_pgsql \
-    && docker-php-ext-enable opcache 2>/dev/null || true
+    && docker-php-ext-enable opcache 2>/dev/null || true \
+    && pecl install pcov \
+    && docker-php-ext-enable pcov
 
 RUN curl -sS https://getcomposer.org/installer \
     | php -- --install-dir=/usr/local/bin --filename=composer

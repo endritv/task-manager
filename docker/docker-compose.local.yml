@@ -8,6 +8,9 @@ services:
       target: local
     ports:
       - "8000:8000"
+    volumes:
+      - ../api:/var/www
+      - /var/www/vendor
     environment:
       APP_ENV: local
       APP_DEBUG: "true"
@@ -23,5 +26,8 @@ services:
       target: local
     ports:
       - "5173:5173"
+    volumes:
+      - ../web:/app
+      - /app/node_modules
     environment:
       VITE_API_URL: http://localhost:8000/api

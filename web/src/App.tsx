@@ -6,6 +6,7 @@ import {
 import { Toaster } from '@/components/ui/sonner';
 import { TaskList } from '@/components/TaskList/TaskList';
 import { Dashboard } from '@/components/Dashboard/Dashboard';
+import * as React from "react";
 
 function Layout({ children }: { children: React.ReactNode }) {
   return (
@@ -38,7 +39,7 @@ function Layout({ children }: { children: React.ReactNode }) {
           </NavLink>
         </div>
       </nav>
-      <main className="mx-auto max-w-4xl px-3 py-4 sm:px-4 sm:py-6">{children}</main>
+      <main className="mx-auto min-h-[calc(100vh-3.5rem)] max-w-4xl px-3 py-4 sm:px-4 sm:py-6">{children}</main>
     </div>
   );
 }
