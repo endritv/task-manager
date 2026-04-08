@@ -48,3 +48,18 @@ it('returns 404 when updating a non-existent task', function () {
     $this->putJson(route('tasks.update', 999), ['title' => 'Nope'])
         ->assertNotFound();
 });
+
+it('cannot clear description by passing null', function () {
+    $task = Task::factory()->create(['description' => 'Has content']);
+    $this->putJson(route('tasks.update', $task), ['description' => null])
+        ->assertOk()
+        ->assertJsonPath('data.description', 'Has content');
+});
+
+it('accepts an empty body on update and returns the unchanged task', function () {
+    $task = Task::factory()->create(['title' => 'Original']);
+    $this->putJson(route('tasks.update', $task), [])
+        ->assertOk()
+        ->assertJsonPath('data.title', 'Original');
+    $this->assertDatabaseHas('tasks', ['id' => $task->id, 'title' => 'Original']);
+});

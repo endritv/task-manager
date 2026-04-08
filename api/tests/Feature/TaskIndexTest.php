@@ -51,3 +51,21 @@ it('ignores invalid sort fields', function () {
         ->assertOk()
         ->assertJsonCount(2, 'data');
 });
+
+it('caps per_page at 50', function () {
+    Task::factory()->count(60)->create();
+    $this->getJson(route('tasks.index', ['per_page' => 200]))
+        ->assertOk()
+        ->assertJsonPath('meta.per_page', 50)
+        ->assertJsonCount(50, 'data');
+});
+
+it('ignores invalid sort direction and defaults to desc', function () {
+    $this->travel(-1)->days();
+    Task::factory()->create(['title' => 'Old']);
+    $this->travelBack();
+    Task::factory()->create(['title' => 'New']);
+
+    $response = $this->getJson(route('tasks.index', ['direction' => 'DROP TABLE']));
+    expect($response->json('data.0.title'))->toBe('New');
+});

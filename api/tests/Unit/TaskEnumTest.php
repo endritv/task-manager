@@ -30,3 +30,11 @@ it('throws on invalid status', function () {
 it('throws on invalid priority', function () {
     TaskPriority::from('urgent');
 })->throws(ValueError::class);
+
+it('returns null for invalid status via tryFrom', function () {
+    expect(TaskStatus::tryFrom('invalid'))->toBeNull();
+});
+
+it('returns null for invalid priority via tryFrom', function () {
+    expect(TaskPriority::tryFrom('urgent'))->toBeNull();
+});

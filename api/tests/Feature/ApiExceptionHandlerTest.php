@@ -53,4 +53,4 @@ it('hides error details in production', function () {
     $this->getJson('/api/test-prod-500')
         ->assertStatus(500)
         ->assertJsonPath('message', 'Something went wrong');
-});
+})->after(fn () => app()->detectEnvironment(fn () => 'testing'));

@@ -55,3 +55,30 @@ it('validates priority must be a valid enum', function () {
         ->assertStatus(422)
         ->assertJsonValidationErrors(['priority']);
 });
+
+it('accepts a due_date in the past', function () {
+    $this->postJson(route('tasks.store'), ['title' => 'Late task', 'due_date' => '2000-01-01'])
+        ->assertCreated();
+});
+
+it('accepts description at exactly 500 characters', function () {
+    $this->postJson(route('tasks.store'), ['title' => 'Task', 'description' => str_repeat('a', 500)])
+        ->assertCreated();
+});
+
+it('rejects description over 500 characters', function () {
+    $this->postJson(route('tasks.store'), ['title' => 'Task', 'description' => str_repeat('a', 501)])
+        ->assertStatus(422)
+        ->assertJsonValidationErrors(['description']);
+});
+
+it('accepts a title at exactly 100 characters', function () {
+    $this->postJson(route('tasks.store'), ['title' => str_repeat('a', 100)])
+        ->assertCreated();
+});
+
+it('allows duplicate titles', function () {
+    $this->postJson(route('tasks.store'), ['title' => 'Same'])->assertCreated();
+    $this->postJson(route('tasks.store'), ['title' => 'Same'])->assertCreated();
+    $this->assertDatabaseCount('tasks', 2);
+});
