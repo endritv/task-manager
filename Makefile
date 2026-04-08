@@ -21,34 +21,37 @@ clean:
 
 # API
 api-shell:
-	docker exec -it task-manager-api-1 sh
+	$(COMPOSE) exec api sh
 migrate:
-	docker exec task-manager-api-1 php artisan migrate
+	$(COMPOSE) exec api php artisan migrate
 seed:
-	docker exec task-manager-api-1 php artisan db:seed
+	$(COMPOSE) exec api php artisan db:seed
 tinker:
-	docker exec -it task-manager-api-1 php artisan tinker
+	$(COMPOSE) exec api php artisan tinker
 
 # Testing
 test: test-api test-web
 test-api:
-	cd api && composer test
+	$(COMPOSE) exec api php artisan test
 test-web:
-	cd web && npm test
+	$(COMPOSE) exec web npx vitest run
 test-coverage: test-api-coverage test-web-coverage
 test-api-coverage:
-	cd api && composer test:coverage
+	$(COMPOSE) exec api php artisan test --coverage --min=100
 test-web-coverage:
-	cd web && npm run test:coverage
+	$(COMPOSE) exec web npx vitest run --coverage
 test-parallel:
-	cd api && composer test:parallel
+	$(COMPOSE) exec api php artisan test --parallel
 lint: lint-api lint-web
 lint-api:
-	cd api && ./vendor/bin/pint --test
+	$(COMPOSE) exec api vendor/bin/pint --test
+lint-fix:
+	$(COMPOSE) exec api vendor/bin/pint
 lint-web:
-	cd web && npm run lint
+	$(COMPOSE) exec web npx eslint . --ignore-pattern 'coverage/**'
 typecheck:
-	cd web && npm run typecheck
+	$(COMPOSE) exec web npx tsc -p tsconfig.app.json --noEmit
+ci: lint typecheck test-coverage
 
 # Staging
 staging-up:
@@ -62,4 +65,4 @@ prod-up:
 prod-down:
 	docker compose -f docker/docker-compose.yml -f docker/docker-compose.prod.yml down
 
-.PHONY: up down build restart logs ps clean api-shell migrate seed tinker test test-api test-web test-coverage test-api-coverage test-web-coverage test-parallel lint lint-api lint-web typecheck staging-up staging-down prod-up prod-down
+.PHONY: up down build restart logs ps clean api-shell migrate seed tinker test test-api test-web test-coverage test-api-coverage test-web-coverage test-parallel lint lint-api lint-fix lint-web typecheck ci staging-up staging-down prod-up prod-down

@@ -12,6 +12,9 @@ concurrency:
   group: api-${{ github.ref }}-${{ github.event_name }}
   cancel-in-progress: true
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
 jobs:
   backend:
     name: Backend (PHP 8.5)
@@ -42,7 +45,7 @@ jobs:
       DB_PASSWORD: password
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 1
 
@@ -53,32 +56,37 @@ jobs:
           extensions: pdo, pdo_pgsql, pcov
           coverage: pcov
           tools: composer:v2
-          ini-values: opcache.enable_cli=1, pcov.enabled=1
+          ini-values: opcache.enable_cli=1, opcache.jit=0, pcov.enabled=1
 
       - name: Cache Composer dependencies
         id: vendor-cache
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: api/vendor
           key: vendor-php85-${{ hashFiles('api/composer.lock') }}
           restore-keys: vendor-php85-
 
-      - name: Install Composer dependencies
-        if: steps.vendor-cache.outputs.cache-hit != 'true'
-        working-directory: api
-        run: composer install --no-interaction --prefer-dist --optimize-autoloader
-
       - name: Prepare environment
         working-directory: api
         run: |
+          mkdir -p bootstrap/cache storage/framework/{sessions,views,cache}
           cp .env.example .env
-          php artisan key:generate --quiet
+
+      - name: Install Composer dependencies
+        working-directory: api
+        run: composer install --no-interaction --prefer-dist --optimize-autoloader
+
+      - name: Generate app key
+        working-directory: api
+        run: php artisan key:generate --quiet
 
       - name: Create parallel test databases
         run: |
-          for i in $(seq 1 8); do
+          for i in 1 2 3 4 5 6 7 8; do
+            PGPASSWORD=password psql -h 127.0.0.1 -U user -d task_manager_test -tc \
+              "SELECT 1 FROM pg_database WHERE datname='task_manager_test_${i}'" | grep -q 1 || \
             PGPASSWORD=password psql -h 127.0.0.1 -U user -d task_manager_test -c \
-              "CREATE DATABASE task_manager_test_${i};" 2>/dev/null || true
+              "CREATE DATABASE task_manager_test_${i};"
           done
 
       - name: Run migrations
@@ -110,8 +118,8 @@ jobs:
           } >> $GITHUB_STEP_SUMMARY
 
       - name: Upload coverage report
-        if: always()
-        uses: actions/upload-artifact@v4
+        if: github.event_name == 'pull_request' && always()
+        uses: actions/upload-artifact@v7
         with:
           name: api-coverage
           path: api/coverage.xml
