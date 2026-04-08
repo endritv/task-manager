@@ -154,6 +154,28 @@ it('lists tasks sorted by an allowed field', function () {
         ->and($result->last()->title)->toBe('Cherry');
 });
 
+it('sorts tasks by priority weight', function () {
+    Task::factory()->create(['priority' => TaskPriority::Low]);
+    Task::factory()->create(['priority' => TaskPriority::High]);
+    Task::factory()->create(['priority' => TaskPriority::Medium]);
+
+    $result = $this->service->list(sortBy: 'priority', direction: 'asc');
+
+    expect($result->first()->priority)->toBe(TaskPriority::High)
+        ->and($result->last()->priority)->toBe(TaskPriority::Low);
+});
+
+it('sorts tasks by status weight', function () {
+    Task::factory()->create(['status' => TaskStatus::Completed]);
+    Task::factory()->create(['status' => TaskStatus::InProgress]);
+    Task::factory()->create(['status' => TaskStatus::Pending]);
+
+    $result = $this->service->list(sortBy: 'status', direction: 'asc');
+
+    expect($result->first()->status)->toBe(TaskStatus::InProgress)
+        ->and($result->last()->status)->toBe(TaskStatus::Completed);
+});
+
 it('falls back to created_at desc for invalid sort fields', function () {
     $this->travel(-1)->days();
     Task::factory()->create(['title' => 'Old']);

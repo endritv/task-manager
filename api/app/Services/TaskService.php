@@ -109,10 +109,18 @@ final class TaskService
             $query->where('priority', $priority);
         }
 
-        return $query->orderBy(
-            in_array($sortBy, self::ALLOWED_SORTS) ? $sortBy : 'created_at',
-            $direction === 'asc' ? 'asc' : 'desc',
-        )->paginate($perPage);
+        $sortField = in_array($sortBy, self::ALLOWED_SORTS) ? $sortBy : 'created_at';
+        $sortDir = $direction === 'asc' ? 'asc' : 'desc';
+
+        if ($sortField === 'priority') {
+            $query->orderByRaw("CASE priority WHEN 'high' THEN 1 WHEN 'medium' THEN 2 WHEN 'low' THEN 3 END {$sortDir}");
+        } elseif ($sortField === 'status') {
+            $query->orderByRaw("CASE status WHEN 'in_progress' THEN 1 WHEN 'pending' THEN 2 WHEN 'completed' THEN 3 END {$sortDir}");
+        } else {
+            $query->orderBy($sortField, $sortDir);
+        }
+
+        return $query->paginate($perPage);
     }
 
     public function stats(): array
