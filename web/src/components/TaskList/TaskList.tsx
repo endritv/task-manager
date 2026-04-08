@@ -49,8 +49,8 @@ const priorityLabels: Record<PriorityFilter, string> = {
 const sortLabels = {
   '-created_at': 'Newest First',
   created_at: 'Oldest First',
-  '-priority': 'Priority (High)',
-  priority: 'Priority (Low)',
+  priority: 'Priority (High)',
+  '-priority': 'Priority (Low)',
   title: 'Title (A-Z)',
   '-due_date': 'Due Date (Latest)',
   due_date: 'Due Date (Earliest)',
@@ -223,8 +223,8 @@ export function TaskList(): ReactElement {
             <SelectContent>
               <SelectItem value="-created_at">Newest First</SelectItem>
               <SelectItem value="created_at">Oldest First</SelectItem>
-              <SelectItem value="-priority">Priority (High)</SelectItem>
-              <SelectItem value="priority">Priority (Low)</SelectItem>
+              <SelectItem value="priority">Priority (High)</SelectItem>
+              <SelectItem value="-priority">Priority (Low)</SelectItem>
               <SelectItem value="title">Title (A-Z)</SelectItem>
               <SelectItem value="-due_date">Due Date (Latest)</SelectItem>
               <SelectItem value="due_date">Due Date (Earliest)</SelectItem>
