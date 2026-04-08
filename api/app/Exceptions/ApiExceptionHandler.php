@@ -13,10 +13,12 @@ final class ApiExceptionHandler
 {
     public static function register(Exceptions $exceptions): void
     {
-        $exceptions->shouldRenderJsonWhen(fn (Request $request) => $request->is('api/*'));
+        $exceptions->shouldRenderJsonWhen(fn (Request $request) =>
+            $request->is('api/*') && ! $request->is('api/docs*')
+        );
 
         $exceptions->render(function (NotFoundHttpException $e, Request $request) {
-            if (! $request->is('api/*')) {
+            if (! $request->is('api/*') || $request->is('api/docs*')) {
                 return null;
             }
 
@@ -35,7 +37,7 @@ final class ApiExceptionHandler
         });
 
         $exceptions->render(function (ValidationException $e, Request $request) {
-            if ($request->is('api/*')) {
+            if ($request->is('api/*') && ! $request->is('api/docs*')) {
                 return response()->json([
                     'message' => 'Validation failed',
                     'errors' => $e->errors(),
@@ -44,7 +46,7 @@ final class ApiExceptionHandler
         });
 
         $exceptions->render(function (\Throwable $e, Request $request) {
-            if ($request->is('api/*')) {
+            if ($request->is('api/*') && ! $request->is('api/docs*')) {
                 Log::error('Unhandled exception', [
                     'exception' => get_class($e),
                     'message' => $e->getMessage(),
