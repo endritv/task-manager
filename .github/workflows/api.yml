@@ -3,10 +3,10 @@ name: API
 on:
   push:
     branches: [main]
-    paths: [api/**, docker/api/**]
+    paths: [api/**, docker/api/**, .github/workflows/api.yml]
   pull_request:
     branches: ["**"]
-    paths: [api/**, docker/api/**]
+    paths: [api/**, docker/api/**, .github/workflows/api.yml]
 
 concurrency:
   group: api-${{ github.ref }}-${{ github.event_name }}

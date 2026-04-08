@@ -3,10 +3,10 @@ name: Web
 on:
   push:
     branches: [main]
-    paths: [web/**, docker/web/**]
+    paths: [web/**, docker/web/**, .github/workflows/web.yml]
   pull_request:
     branches: ["**"]
-    paths: [web/**, docker/web/**]
+    paths: [web/**, docker/web/**, .github/workflows/web.yml]
 
 concurrency:
   group: web-${{ github.ref }}-${{ github.event_name }}
