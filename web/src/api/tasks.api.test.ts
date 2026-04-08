@@ -102,12 +102,12 @@ describe('tasksApi.delete', () => {
 
 describe('tasksApi.stats', () => {
   it('fetches stats without data envelope', async () => {
-    const stats = { total: 5, byStatus: { pending: 3 }, byPriority: { high: 2 } };
+    const stats = { totalTasks: 5, byStatus: { pending: 3 }, byPriority: { high: 2 } };
     mockedClient.get.mockResolvedValue({ data: stats });
 
     const result = await tasksApi.stats();
 
     expect(mockedClient.get).toHaveBeenCalledWith('/tasks/stats');
-    expect(result.total).toBe(5);
+    expect(result.totalTasks).toBe(5);
   });
 });

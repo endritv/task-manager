@@ -74,7 +74,7 @@ export function Dashboard(): ReactElement | null {
       {/* Total */}
       <div className="rounded-lg border bg-card p-6 shadow-sm">
         <p className="text-sm text-muted-foreground">Total Tasks</p>
-        <p className="text-4xl font-bold text-card-foreground">{stats.total}</p>
+        <p className="text-4xl font-bold text-card-foreground">{stats.totalTasks}</p>
       </div>
 
       {/* By Status */}

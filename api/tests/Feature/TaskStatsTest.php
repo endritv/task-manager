@@ -7,7 +7,7 @@ use App\Models\Task;
 it('returns zero stats when no tasks exist', function () {
     $this->getJson(route('tasks.stats'))
         ->assertOk()
-        ->assertJsonPath('total', 0)
+        ->assertJsonPath('totalTasks', 0)
         ->assertJsonPath('byStatus', [])
         ->assertJsonPath('byPriority', []);
 });
@@ -20,7 +20,7 @@ it('returns correct stats grouped by status and priority', function () {
     $response = $this->getJson(route('tasks.stats'));
 
     $response->assertOk()
-        ->assertJsonPath('total', 6)
+        ->assertJsonPath('totalTasks', 6)
         ->assertJsonPath('byStatus.'.TaskStatus::Pending->value, 3)
         ->assertJsonPath('byStatus.'.TaskStatus::Completed->value, 2)
         ->assertJsonPath('byStatus.'.TaskStatus::InProgress->value, 1)

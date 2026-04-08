@@ -29,7 +29,7 @@ export const mockPaginatedTasks: PaginatedResponse<Task> = {
 };
 
 export const mockStats: TaskStats = {
-  total: 5,
+  totalTasks: 5,
   byStatus: { pending: 3, in_progress: 1, completed: 1 },
   byPriority: { low: 1, medium: 2, high: 2 },
 };

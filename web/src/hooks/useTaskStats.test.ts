@@ -21,7 +21,7 @@ describe('useTaskStats', () => {
     await waitFor(() => expect(result.current.loading).toBe(false));
 
     expect(result.current.stats).toEqual(mockStats);
-    expect(result.current.stats?.total).toBe(5);
+    expect(result.current.stats?.totalTasks).toBe(5);
   });
 
   it('sets error when stats fetch fails', async () => {

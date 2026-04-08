@@ -173,7 +173,7 @@ it('returns correct stats', function () {
 
     $stats = $this->service->stats();
 
-    expect($stats['total'])->toBe(3)
+    expect($stats['totalTasks'])->toBe(3)
         ->and($stats['byStatus'][TaskStatus::Pending->value])->toBe(2)
         ->and($stats['byStatus'][TaskStatus::Completed->value])->toBe(1)
         ->and($stats['byPriority'][TaskPriority::High->value])->toBe(2)

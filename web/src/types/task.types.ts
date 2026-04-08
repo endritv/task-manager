@@ -18,7 +18,7 @@ export interface Task {
 }
 
 export interface TaskStats {
-  total: number;
+  totalTasks: number;
   byStatus: Record<TaskStatus, number>;
   byPriority: Record<TaskPriority, number>;
 }

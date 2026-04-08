@@ -118,7 +118,7 @@ final class TaskService
     public function stats(): array
     {
         return [
-            'total' => Task::count(),
+            'totalTasks' => Task::count(),
             'byStatus' => Task::selectRaw('status, count(*) as count')
                 ->groupBy('status')
                 ->pluck('count', 'status'),
