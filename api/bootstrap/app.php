@@ -1,8 +1,11 @@
 <?php
 
+use App\Exceptions\ApiExceptionHandler;
+use App\Http\Middleware\LogApiRequests;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Http\Middleware\HandleCors;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -12,8 +15,10 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        //
+        $middleware->append(HandleCors::class);
+
+        $middleware->api(prepend: [LogApiRequests::class]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        //
+        ApiExceptionHandler::register($exceptions);
     })->create();

@@ -15,6 +15,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\ResourceCollection;
 use Illuminate\Http\Response;
+use Throwable;
 
 final class TaskController extends ApiController
 {
@@ -54,9 +55,12 @@ final class TaskController extends ApiController
         return $this->success(new TaskResource($updated));
     }
 
+    /**
+     * @throws Throwable
+     */
     public function destroy(Task $task): Response
     {
-        $task->delete();
+        $this->service->delete($task);
 
         return $this->noContent();
     }
