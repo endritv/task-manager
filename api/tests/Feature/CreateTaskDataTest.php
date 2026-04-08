@@ -5,7 +5,6 @@ use App\Enums\TaskPriority;
 use App\Enums\TaskStatus;
 use App\Http\Requests\CreateTaskRequest;
 
-
 it('maps request fields to DTO properties', function () {
     $request = CreateTaskRequest::create('/api/tasks', 'POST', [
         'title' => 'My task',

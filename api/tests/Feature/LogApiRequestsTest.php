@@ -1,8 +1,8 @@
 <?php
 
 use App\Http\Middleware\LogApiRequests;
-use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
 it('logs request details to the api channel', function () {
@@ -20,11 +20,12 @@ it('logs request details to the api channel', function () {
                 && $context['status'] === 200
                 && str_contains($context['duration'], 'ms')
                 && isset($context['ip']);
+
             return true;
         })
         ->once();
 
-    $middleware = new LogApiRequests();
+    $middleware = new LogApiRequests;
     $request = Request::create('/test', 'GET');
 
     $middleware->handle($request, fn () => new JsonResponse(['ok' => true], 200));
@@ -43,7 +44,7 @@ it('logs the correct status code', function () {
         })
         ->once();
 
-    $middleware = new LogApiRequests();
+    $middleware = new LogApiRequests;
     $request = Request::create('/missing', 'GET');
 
     $middleware->handle($request, fn () => new JsonResponse(['error' => 'not found'], 404));
@@ -60,7 +61,7 @@ it('logs POST method correctly', function () {
         })
         ->once();
 
-    $middleware = new LogApiRequests();
+    $middleware = new LogApiRequests;
     $request = Request::create('/tasks', 'POST');
 
     $middleware->handle($request, fn () => new JsonResponse(['data' => []], 201));

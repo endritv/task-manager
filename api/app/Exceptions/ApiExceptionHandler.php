@@ -13,8 +13,7 @@ final class ApiExceptionHandler
 {
     public static function register(Exceptions $exceptions): void
     {
-        $exceptions->shouldRenderJsonWhen(fn (Request $request) =>
-            $request->is('api/*') && ! $request->is('api/docs*')
+        $exceptions->shouldRenderJsonWhen(fn (Request $request) => $request->is('api/*') && ! $request->is('api/docs*')
         );
 
         $exceptions->render(function (NotFoundHttpException $e, Request $request) {
@@ -26,6 +25,7 @@ final class ApiExceptionHandler
 
             if ($previous instanceof ModelNotFoundException) {
                 $model = class_basename($previous->getModel());
+
                 return response()->json([
                     'message' => "{$model} not found",
                 ], 404);

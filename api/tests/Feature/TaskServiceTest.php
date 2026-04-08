@@ -43,8 +43,7 @@ it('logs info when a task is created', function () {
     $this->service->create($dto);
 
     Log::shouldHaveReceived('info')
-        ->withArgs(fn (string $message, array $context) =>
-            $message === 'Task created' && $context['title'] === 'Log test'
+        ->withArgs(fn (string $message, array $context) => $message === 'Task created' && $context['title'] === 'Log test'
         )
         ->once();
 });
@@ -58,8 +57,7 @@ it('logs info when a task is updated', function () {
     $this->service->update($task, $dto);
 
     Log::shouldHaveReceived('info')
-        ->withArgs(fn (string $message, array $context) =>
-            $message === 'Task updated' && in_array('title', $context['fields'])
+        ->withArgs(fn (string $message, array $context) => $message === 'Task updated' && in_array('title', $context['fields'])
         )
         ->once();
 });
@@ -72,8 +70,7 @@ it('logs info when a task is deleted', function () {
     $this->service->delete($task);
 
     Log::shouldHaveReceived('info')
-        ->withArgs(fn (string $message, array $context) =>
-            $message === 'Task deleted' && $context['title'] === 'Delete me'
+        ->withArgs(fn (string $message, array $context) => $message === 'Task deleted' && $context['title'] === 'Delete me'
         )
         ->once();
 });
@@ -83,7 +80,7 @@ it('logs error and re-throws on create failure', function () {
 
     // Force Task::create to throw by mocking the model
     Task::creating(function () {
-        throw new \RuntimeException('DB connection lost');
+        throw new RuntimeException('DB connection lost');
     });
 
     $dto = new CreateTaskData(
@@ -95,11 +92,10 @@ it('logs error and re-throws on create failure', function () {
     );
 
     expect(fn () => $this->service->create($dto))
-        ->toThrow(\RuntimeException::class, 'DB connection lost');
+        ->toThrow(RuntimeException::class, 'DB connection lost');
 
     Log::shouldHaveReceived('error')
-        ->withArgs(fn (string $message, array $context) =>
-            $message === 'Failed to create task'
+        ->withArgs(fn (string $message, array $context) => $message === 'Failed to create task'
             && str_contains($context['error'], 'DB connection lost')
         )
         ->once();
@@ -111,17 +107,16 @@ it('logs error and re-throws on update failure', function () {
     $task = Task::factory()->create();
 
     Task::updating(function () {
-        throw new \RuntimeException('Update failed');
+        throw new RuntimeException('Update failed');
     });
 
     $dto = new UpdateTaskData(title: 'Will fail', description: null, status: null, priority: null, dueDate: null);
 
     expect(fn () => $this->service->update($task, $dto))
-        ->toThrow(\RuntimeException::class, 'Update failed');
+        ->toThrow(RuntimeException::class, 'Update failed');
 
     Log::shouldHaveReceived('error')
-        ->withArgs(fn (string $message, array $context) =>
-            $message === 'Failed to update task'
+        ->withArgs(fn (string $message, array $context) => $message === 'Failed to update task'
             && str_contains($context['error'], 'Update failed')
         )
         ->once();
@@ -134,15 +129,14 @@ it('logs error and re-throws on delete failure', function () {
 
     // Force delete to throw
     Task::deleting(function () {
-        throw new \RuntimeException('Delete failed');
+        throw new RuntimeException('Delete failed');
     });
 
     expect(fn () => $this->service->delete($task))
-        ->toThrow(\RuntimeException::class, 'Delete failed');
+        ->toThrow(RuntimeException::class, 'Delete failed');
 
     Log::shouldHaveReceived('error')
-        ->withArgs(fn (string $message, array $context) =>
-            $message === 'Failed to delete task'
+        ->withArgs(fn (string $message, array $context) => $message === 'Failed to delete task'
             && str_contains($context['error'], 'Delete failed')
         )
         ->once();

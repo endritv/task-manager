@@ -21,10 +21,10 @@ it('returns correct stats grouped by status and priority', function () {
 
     $response->assertOk()
         ->assertJsonPath('total', 6)
-        ->assertJsonPath('byStatus.' . TaskStatus::Pending->value, 3)
-        ->assertJsonPath('byStatus.' . TaskStatus::Completed->value, 2)
-        ->assertJsonPath('byStatus.' . TaskStatus::InProgress->value, 1)
-        ->assertJsonPath('byPriority.' . TaskPriority::High->value, 3)
-        ->assertJsonPath('byPriority.' . TaskPriority::Low->value, 2)
-        ->assertJsonPath('byPriority.' . TaskPriority::Medium->value, 1);
+        ->assertJsonPath('byStatus.'.TaskStatus::Pending->value, 3)
+        ->assertJsonPath('byStatus.'.TaskStatus::Completed->value, 2)
+        ->assertJsonPath('byStatus.'.TaskStatus::InProgress->value, 1)
+        ->assertJsonPath('byPriority.'.TaskPriority::High->value, 3)
+        ->assertJsonPath('byPriority.'.TaskPriority::Low->value, 2)
+        ->assertJsonPath('byPriority.'.TaskPriority::Medium->value, 1);
 });

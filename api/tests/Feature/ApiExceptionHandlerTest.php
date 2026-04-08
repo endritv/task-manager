@@ -1,6 +1,5 @@
 <?php
 
-use App\Models\Task;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
 
@@ -26,14 +25,13 @@ it('returns 422 with field errors for validation failures', function () {
 it('returns 500 and logs unhandled exceptions', function () {
     Log::spy();
 
-    Route::get('/api/test-500', fn () => throw new \RuntimeException('Boom'));
+    Route::get('/api/test-500', fn () => throw new RuntimeException('Boom'));
 
     $this->getJson('/api/test-500')
         ->assertStatus(500);
 
     Log::shouldHaveReceived('error')
-        ->withArgs(fn (string $message, array $context) =>
-            $message === 'Unhandled exception'
+        ->withArgs(fn (string $message, array $context) => $message === 'Unhandled exception'
             && $context['exception'] === 'RuntimeException'
             && $context['message'] === 'Boom'
         )
@@ -48,7 +46,7 @@ it('does not intercept non-api 404 routes', function () {
 it('hides error details in production', function () {
     app()->detectEnvironment(fn () => 'production');
 
-    Route::get('/api/test-prod-500', fn () => throw new \RuntimeException('Secret error'));
+    Route::get('/api/test-prod-500', fn () => throw new RuntimeException('Secret error'));
 
     $this->getJson('/api/test-prod-500')
         ->assertStatus(500)

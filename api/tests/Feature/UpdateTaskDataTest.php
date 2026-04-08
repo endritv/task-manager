@@ -5,7 +5,6 @@ use App\Enums\TaskPriority;
 use App\Enums\TaskStatus;
 use App\Http\Requests\UpdateTaskRequest;
 
-
 it('maps only provided fields', function () {
     $request = UpdateTaskRequest::create('/api/tasks/1', 'PUT', [
         'status' => TaskStatus::Completed->value,

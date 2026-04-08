@@ -20,10 +20,12 @@ use Illuminate\Support\Carbon;
  * @property Carbon $due_date
  * @property Carbon $created_at
  * @property Carbon $updated_at
+ *
  * @method static TaskFactory factory($count = null, $state = [])
  * @method static Builder<static>|Task newModelQuery()
  * @method static Builder<static>|Task newQuery()
  * @method static Builder<static>|Task query()
+ *
  * @mixin Eloquent
  */
 class Task extends Model
@@ -39,7 +41,7 @@ class Task extends Model
     ];
 
     protected $casts = [
-        'status'   => TaskStatus::class,
+        'status' => TaskStatus::class,
         'priority' => TaskPriority::class,
         'due_date' => 'datetime',
     ];

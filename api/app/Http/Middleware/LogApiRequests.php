@@ -18,11 +18,11 @@ class LogApiRequests
         $duration = round((microtime(true) - $start) * 1000, 2);
 
         Log::channel('api')->info('API Request', [
-            'method'   => $request->method(),
-            'uri'      => $request->getRequestUri(),
-            'status'   => $response->getStatusCode(),
+            'method' => $request->method(),
+            'uri' => $request->getRequestUri(),
+            'status' => $response->getStatusCode(),
             'duration' => "{$duration}ms",
-            'ip'       => $request->ip(),
+            'ip' => $request->ip(),
         ]);
 
         return $response;
