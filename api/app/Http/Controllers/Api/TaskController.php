@@ -29,6 +29,7 @@ final class TaskController extends ApiController
                 $this->service->list(
                     sortBy: $request->query('sort', 'created_at'),
                     direction: $request->query('direction', 'desc'),
+                    perPage: min((int) $request->query('per_page', 15), 50),
                 )
             )
         );

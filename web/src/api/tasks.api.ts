@@ -9,13 +9,17 @@ import type {
 
 interface ListParams {
   page?: number;
+  perPage?: number;
   sort?: string;
   direction?: 'asc' | 'desc';
 }
 
 export const tasksApi = {
   getAll: async (params: ListParams = {}): Promise<PaginatedResponse<Task>> => {
-    const { data } = await client.get<PaginatedResponse<Task>>('/tasks', { params });
+    const { page, perPage: per_page, sort, direction } = params;
+    const { data } = await client.get<PaginatedResponse<Task>>('/tasks', {
+      params: { page, per_page, sort, direction },
+    });
     return data;
   },
 

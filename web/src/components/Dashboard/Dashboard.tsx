@@ -39,7 +39,7 @@ export function Dashboard() {
         {Array.from({ length: 2 }).map((_, i) => (
           <div key={i}>
             <Skeleton className="mb-3 h-6 w-28" />
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 sm:gap-4">
               {Array.from({ length: 3 }).map((_, j) => (
                 <div key={j} className="rounded-lg border bg-card p-4 shadow-sm space-y-2">
                   <div className="flex items-center justify-between">
@@ -79,7 +79,7 @@ export function Dashboard() {
       {/* By Status */}
       <div>
         <h2 className="mb-3 text-lg font-semibold">By Status</h2>
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 sm:gap-4">
           {(Object.entries(statusLabels) as [keyof typeof statusLabels, string][]).map(
             ([key, label]) => (
               <div key={key} className="rounded-lg border bg-card p-4 shadow-sm">

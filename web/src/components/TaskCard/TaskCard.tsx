@@ -1,5 +1,5 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
-import { TrashIcon, CalendarIcon } from '@heroicons/react/24/outline';
+import { TrashIcon, PencilIcon, CalendarIcon } from '@heroicons/react/24/outline';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -9,12 +9,14 @@ import {
   DialogDescription,
   DialogFooter,
 } from '@/components/ui/dialog';
-import type { Task, TaskStatus } from '@/types/task.types';
+import { TaskForm } from '@/components/TaskForm/TaskForm';
+import type { Task, TaskStatus, CreateTaskDto } from '@/types/task.types';
 import { formatDate } from '@/utils/formatDate';
 
 interface TaskCardProps {
   task: Task;
   onStatusChange: (id: number, status: TaskStatus) => void;
+  onEdit: (id: number, dto: CreateTaskDto) => Promise<void>;
   onDelete: (id: number) => void;
 }
 
@@ -36,8 +38,9 @@ const nextStatus: Record<TaskStatus, TaskStatus> = {
   completed: 'pending',
 };
 
-export function TaskCard({ task, onStatusChange, onDelete }: TaskCardProps) {
+export function TaskCard({ task, onStatusChange, onEdit, onDelete }: TaskCardProps) {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [showEditDialog, setShowEditDialog] = useState(false);
   const [expanded, setExpanded] = useState(false);
   const [isClamped, setIsClamped] = useState(false);
   const descRef = useRef<HTMLParagraphElement>(null);
@@ -56,37 +59,53 @@ export function TaskCard({ task, onStatusChange, onDelete }: TaskCardProps) {
     setShowDeleteDialog(false);
   }, [task.id, onDelete]);
 
+  const handleEdit = async (dto: CreateTaskDto) => {
+    await onEdit(task.id, dto);
+    setShowEditDialog(false);
+  };
+
   const status = statusConfig[task.status];
   const priority = priorityConfig[task.priority];
 
   return (
     <>
-      <div className="rounded-lg border bg-card p-4 shadow-sm transition-shadow hover:shadow-md">
-        <div className="flex items-start justify-between gap-3">
+      <div className="rounded-lg border bg-card p-3 shadow-sm transition-shadow hover:shadow-md sm:p-4">
+        <div className="flex items-start justify-between gap-2 sm:gap-3">
           <div className="min-w-0 flex-1">
-            <h3 className="font-medium text-card-foreground truncate">{task.title}</h3>
+            <h3 className="text-sm font-medium text-card-foreground truncate sm:text-base">{task.title}</h3>
             {task.description && (
               <p
                 ref={descRef}
-                className={`mt-1 text-sm text-muted-foreground ${expanded ? '' : 'line-clamp-2'}`}
+                className={`mt-1 text-xs text-muted-foreground sm:text-sm ${expanded ? '' : 'line-clamp-2'}`}
               >
                 {task.description}
               </p>
             )}
           </div>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setShowDeleteDialog(true)}
-            aria-label="Delete task"
-            className="shrink-0 text-muted-foreground hover:text-destructive"
-          >
-            <TrashIcon className="size-4" />
-          </Button>
+          <div className="flex shrink-0 gap-1">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setShowEditDialog(true)}
+              aria-label="Edit task"
+              className="size-8 text-muted-foreground hover:text-foreground"
+            >
+              <PencilIcon className="size-4" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setShowDeleteDialog(true)}
+              aria-label="Delete task"
+              className="size-8 text-muted-foreground hover:text-destructive"
+            >
+              <TrashIcon className="size-4" />
+            </Button>
+          </div>
         </div>
 
-        <div className="mt-3 flex items-center justify-between">
-          <div className="flex flex-wrap items-center gap-2">
+        <div className="mt-2 flex items-center justify-between sm:mt-3">
+          <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
             <span
               className={`inline-flex cursor-pointer items-center rounded-full px-2 py-0.5 text-xs font-medium ${status.className}`}
               onClick={handleStatusToggle}
@@ -115,6 +134,17 @@ export function TaskCard({ task, onStatusChange, onDelete }: TaskCardProps) {
         </div>
       </div>
 
+      {/* Edit Dialog */}
+      <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit Task</DialogTitle>
+          </DialogHeader>
+          <TaskForm task={task} onSubmit={handleEdit} onCancel={() => setShowEditDialog(false)} />
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Dialog */}
       <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <DialogContent>
           <DialogHeader>

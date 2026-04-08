@@ -9,7 +9,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import type { CreateTaskDto, TaskStatus, TaskPriority } from '@/types/task.types';
+import { getApiError, getFieldErrors } from '@/utils/getApiError';
+import type { Task, CreateTaskDto, TaskStatus, TaskPriority } from '@/types/task.types';
 
 const priorityLabels: Record<TaskPriority, string> = {
   low: 'Low',
@@ -24,25 +25,39 @@ const statusLabels: Record<TaskStatus, string> = {
 };
 
 interface TaskFormProps {
+  task?: Task;
   onSubmit: (dto: CreateTaskDto) => Promise<void>;
   onCancel: () => void;
 }
 
-export function TaskForm({ onSubmit, onCancel }: TaskFormProps) {
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
-  const [status, setStatus] = useState<TaskStatus>('pending');
-  const [priority, setPriority] = useState<TaskPriority>('medium');
-  const [dueDate, setDueDate] = useState('');
+export function TaskForm({ task, onSubmit, onCancel }: TaskFormProps) {
+  const isEditing = !!task;
+
+  const [title, setTitle] = useState(task?.title ?? '');
+  const [description, setDescription] = useState(task?.description ?? '');
+  const [status, setStatus] = useState<TaskStatus>(task?.status ?? 'pending');
+  const [priority, setPriority] = useState<TaskPriority>(task?.priority ?? 'medium');
+  const [dueDate, setDueDate] = useState(task?.dueDate?.split('T')[0] ?? '');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!title.trim()) return;
+    setFieldErrors({});
+    setError(null);
+
+    if (!title.trim()) {
+      setFieldErrors({ title: 'Title is required' });
+      return;
+    }
+
+    if (title.trim().length > 100) {
+      setFieldErrors({ title: 'Title must be 100 characters or less' });
+      return;
+    }
 
     setSubmitting(true);
-    setError(null);
 
     try {
       await onSubmit({
@@ -52,8 +67,13 @@ export function TaskForm({ onSubmit, onCancel }: TaskFormProps) {
         priority,
         dueDate: dueDate || null,
       });
-    } catch {
-      setError('Failed to create task');
+    } catch (err) {
+      const fields = getFieldErrors(err);
+      if (fields) {
+        setFieldErrors(fields);
+      } else {
+        setError(getApiError(err));
+      }
     } finally {
       setSubmitting(false);
     }
@@ -72,11 +92,15 @@ export function TaskForm({ onSubmit, onCancel }: TaskFormProps) {
         <Input
           id="title"
           value={title}
-          onChange={(e) => setTitle(e.target.value)}
+          onChange={(e) => { setTitle(e.target.value); setFieldErrors((prev) => ({ ...prev, title: '' })); }}
           placeholder="What needs to be done?"
           maxLength={100}
           required
+          aria-invalid={!!fieldErrors.title}
         />
+        {fieldErrors.title && (
+          <p className="text-xs text-destructive">{fieldErrors.title}</p>
+        )}
       </div>
 
       <div className="space-y-2">
@@ -90,9 +114,12 @@ export function TaskForm({ onSubmit, onCancel }: TaskFormProps) {
           rows={3}
           className="w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
         />
+        {fieldErrors.description && (
+          <p className="text-xs text-destructive">{fieldErrors.description}</p>
+        )}
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div className="space-y-2">
           <Label>Priority</Label>
           <Select value={priority} onValueChange={(val) => { if (val) setPriority(val as TaskPriority); }}>
@@ -132,12 +159,12 @@ export function TaskForm({ onSubmit, onCancel }: TaskFormProps) {
         />
       </div>
 
-      <div className="flex justify-end gap-2 pt-2">
+      <div className="flex flex-col-reverse gap-2 pt-2 sm:flex-row sm:justify-end">
         <Button type="button" variant="outline" onClick={onCancel}>
           Cancel
         </Button>
         <Button type="submit" disabled={submitting || !title.trim()}>
-          {submitting ? 'Creating...' : 'Create Task'}
+          {submitting ? (isEditing ? 'Saving...' : 'Creating...') : (isEditing ? 'Save Changes' : 'Create Task')}
         </Button>
       </div>
     </form>

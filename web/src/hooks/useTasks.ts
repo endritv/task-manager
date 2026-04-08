@@ -8,6 +8,7 @@ export function useTasks() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [page, setPage] = useState(1);
+  const [perPage, setPerPage] = useState(15);
   const [sortBy, setSortBy] = useState('created_at');
   const [direction, setDirection] = useState<'asc' | 'desc'>('desc');
 
@@ -15,7 +16,7 @@ export function useTasks() {
     try {
       setLoading(true);
       setError(null);
-      const response = await tasksApi.getAll({ page, sort: sortBy, direction });
+      const response = await tasksApi.getAll({ page, perPage, sort: sortBy, direction });
       setTasks(response.data);
       setMeta(response.meta);
     } catch {
@@ -23,7 +24,7 @@ export function useTasks() {
     } finally {
       setLoading(false);
     }
-  }, [page, sortBy, direction]);
+  }, [page, perPage, sortBy, direction]);
 
   const createTask = async (dto: CreateTaskDto) => {
     const task = await tasksApi.create(dto);
@@ -53,6 +54,8 @@ export function useTasks() {
     error,
     page,
     setPage,
+    perPage,
+    setPerPage,
     sortBy,
     setSortBy,
     direction,

@@ -3,6 +3,7 @@ import {
   ClipboardDocumentListIcon,
   ChartBarIcon,
 } from '@heroicons/react/24/outline';
+import { Toaster } from '@/components/ui/sonner';
 import { TaskList } from '@/components/TaskList/TaskList';
 import { Dashboard } from '@/components/Dashboard/Dashboard';
 
@@ -10,8 +11,8 @@ function Layout({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen bg-background">
       <nav className="border-b bg-card">
-        <div className="mx-auto flex h-14 max-w-4xl items-center gap-6 px-4">
-          <span className="text-lg font-bold">Task Manager</span>
+        <div className="mx-auto flex h-14 max-w-4xl items-center gap-4 px-4 sm:gap-6">
+          <span className="text-base font-bold sm:text-lg">Task Manager</span>
           <NavLink
             to="/"
             end
@@ -37,7 +38,7 @@ function Layout({ children }: { children: React.ReactNode }) {
           </NavLink>
         </div>
       </nav>
-      <main className="mx-auto max-w-4xl px-4 py-6">{children}</main>
+      <main className="mx-auto max-w-4xl px-3 py-4 sm:px-4 sm:py-6">{children}</main>
     </div>
   );
 }
@@ -51,6 +52,7 @@ export default function App() {
           <Route path="/dashboard" element={<Dashboard />} />
         </Routes>
       </Layout>
+      <Toaster richColors position="top-right" />
     </BrowserRouter>
   );
 }
