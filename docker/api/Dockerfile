@@ -2,7 +2,8 @@
 FROM php:8.5-fpm-alpine AS base
 
 RUN apk add --no-cache postgresql-dev curl \
-    && docker-php-ext-install pdo pdo_pgsql opcache
+    && docker-php-ext-install pdo pdo_pgsql \
+    && docker-php-ext-enable opcache 2>/dev/null || true
 
 RUN curl -sS https://getcomposer.org/installer \
     | php -- --install-dir=/usr/local/bin --filename=composer
@@ -20,11 +21,18 @@ FROM base AS local
 
 RUN cp .env.example .env && php artisan key:generate --force
 
+COPY --from=docker-context entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
+
 EXPOSE 8000
+ENTRYPOINT ["entrypoint.sh"]
 CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8000"]
 
-# Staging: php-fpm, dev dep stripped
+# Staging: php-fpm, dev deps stripped
 FROM base AS staging
+
+COPY --from=docker-context entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
 
 RUN composer install --no-dev --optimize-autoloader \
     && php artisan key:generate --force \
@@ -32,10 +40,15 @@ RUN composer install --no-dev --optimize-autoloader \
     && php artisan route:cache
 
 EXPOSE 9000
+ENTRYPOINT ["entrypoint.sh"]
 CMD ["php-fpm"]
 
 # Production: php-fpm hardened with opcache
 FROM base AS prod
+
+COPY --from=docker-context entrypoint.sh /usr/local/bin/entrypoint.sh
+COPY --from=docker-context php/opcache.ini /usr/local/etc/php/conf.d/opcache.ini
+RUN chmod +x /usr/local/bin/entrypoint.sh
 
 RUN composer install --no-dev --optimize-autoloader \
     && php artisan key:generate --force \
@@ -43,10 +56,9 @@ RUN composer install --no-dev --optimize-autoloader \
     && php artisan route:cache \
     && php artisan view:cache
 
-COPY docker/php/opcache.ini /usr/local/etc/php/conf.d/opcache.ini
-
 RUN chown -R www-data:www-data /var/www \
     && chmod -R 755 /var/www/storage
 
 EXPOSE 9000
+ENTRYPOINT ["entrypoint.sh"]
 CMD ["php-fpm"]

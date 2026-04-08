@@ -1,4 +1,4 @@
-version: '3.8'
+name: task-manager
 
 services:
   postgres:
@@ -16,13 +16,12 @@ services:
 
   api:
     build:
-      context: ./api
-      target: local
-    ports:
-      - "8000:8000"
+      context: ../api
+      dockerfile: ../docker/api/Dockerfile
+      additional_contexts:
+        docker-context: ./api
     environment:
-      APP_ENV: local
-      APP_DEBUG: true
+      APP_NAME: TaskManager
       DB_CONNECTION: pgsql
       DB_HOST: postgres
       DB_PORT: 5432
@@ -32,17 +31,13 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000"]
-      interval: 10s
-      retries: 3
 
   web:
     build:
-      context: ./web
-      target: local
-    ports:
-      - "5173:5173"
+      context: ../web
+      dockerfile: ../docker/web/Dockerfile
+      additional_contexts:
+        docker-context: ./web
     depends_on:
       - api
 
