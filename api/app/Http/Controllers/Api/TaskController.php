@@ -4,8 +4,8 @@ namespace App\Http\Controllers\Api;
 
 use App\Actions\CreateTaskAction;
 use App\Actions\UpdateTaskAction;
-use App\Data\CreateTaskData;
-use App\Data\UpdateTaskData;
+use App\DTO\CreateTaskData;
+use App\DTO\UpdateTaskData;
 use App\Http\Requests\CreateTaskRequest;
 use App\Http\Requests\UpdateTaskRequest;
 use App\Http\Resources\TaskResource;

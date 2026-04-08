@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Data;
+namespace App\DTO;
 
 use App\Enums\TaskPriority;
 use App\Enums\TaskStatus;

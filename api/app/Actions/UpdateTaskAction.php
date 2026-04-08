@@ -2,7 +2,7 @@
 
 namespace App\Actions;
 
-use App\Data\UpdateTaskData;
+use App\DTO\UpdateTaskData;
 use App\Models\Task;
 use App\Services\TaskService;
 

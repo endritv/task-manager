@@ -2,8 +2,8 @@
 
 namespace App\Services;
 
-use App\Data\CreateTaskData;
-use App\Data\UpdateTaskData;
+use App\DTO\CreateTaskData;
+use App\DTO\UpdateTaskData;
 use App\Models\Task;
 use Illuminate\Pagination\LengthAwarePaginator;
 
