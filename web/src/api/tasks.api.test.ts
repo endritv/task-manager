@@ -24,7 +24,7 @@ describe('tasksApi.getAll', () => {
     const result = await tasksApi.getAll({ page: 1, sort: 'created_at', direction: 'desc' });
 
     expect(mockedClient.get).toHaveBeenCalledWith('/tasks', {
-      params: { page: 1, per_page: undefined, sort: 'created_at', direction: 'desc' },
+      params: { page: 1, per_page: undefined, sort: 'created_at', direction: 'desc', search: undefined, status: undefined, priority: undefined },
     });
     expect(result.data[0].title).toBe('Task 1');
   });
@@ -36,6 +36,16 @@ describe('tasksApi.getAll', () => {
 
     expect(mockedClient.get).toHaveBeenCalledWith('/tasks', {
       params: expect.objectContaining({ per_page: 25 }),
+    });
+  });
+
+  it('passes search, status, and priority filters', async () => {
+    mockedClient.get.mockResolvedValue({ data: { data: [], meta: {}, links: {} } });
+
+    await tasksApi.getAll({ search: 'login', status: 'pending', priority: 'high' });
+
+    expect(mockedClient.get).toHaveBeenCalledWith('/tasks', {
+      params: expect.objectContaining({ search: 'login', status: 'pending', priority: 'high' }),
     });
   });
 });

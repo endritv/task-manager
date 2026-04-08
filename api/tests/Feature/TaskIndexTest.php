@@ -69,3 +69,72 @@ it('ignores invalid sort direction and defaults to desc', function () {
     $response = $this->getJson(route('tasks.index', ['direction' => 'DROP TABLE']));
     expect($response->json('data.0.title'))->toBe('New');
 });
+
+it('filters tasks by search term in title', function () {
+    Task::factory()->create(['title' => 'Fix login bug']);
+    Task::factory()->create(['title' => 'Add dashboard']);
+    Task::factory()->create(['title' => 'Update login page']);
+
+    $response = $this->getJson(route('tasks.index', ['search' => 'login']));
+
+    $response->assertOk()->assertJsonCount(2, 'data');
+    expect(collect($response->json('data'))->pluck('title')->toArray())
+        ->each->toContain('login');
+});
+
+it('filters tasks by search term in description', function () {
+    Task::factory()->create(['title' => 'Task A', 'description' => 'Fix the authentication flow']);
+    Task::factory()->create(['title' => 'Task B', 'description' => 'Update the UI']);
+
+    $response = $this->getJson(route('tasks.index', ['search' => 'authentication']));
+
+    $response->assertOk()->assertJsonCount(1, 'data');
+    expect($response->json('data.0.title'))->toBe('Task A');
+});
+
+it('filters tasks by status', function () {
+    Task::factory()->create(['status' => 'pending']);
+    Task::factory()->create(['status' => 'pending']);
+    Task::factory()->create(['status' => 'completed']);
+
+    $response = $this->getJson(route('tasks.index', ['status' => 'pending']));
+
+    $response->assertOk()->assertJsonCount(2, 'data');
+    expect(collect($response->json('data'))->pluck('status')->unique()->toArray())
+        ->toBe(['pending']);
+});
+
+it('filters tasks by priority', function () {
+    Task::factory()->create(['priority' => 'high']);
+    Task::factory()->create(['priority' => 'low']);
+    Task::factory()->create(['priority' => 'high']);
+
+    $response = $this->getJson(route('tasks.index', ['priority' => 'high']));
+
+    $response->assertOk()->assertJsonCount(2, 'data');
+    expect(collect($response->json('data'))->pluck('priority')->unique()->toArray())
+        ->toBe(['high']);
+});
+
+it('combines search with status and priority filters', function () {
+    Task::factory()->create(['title' => 'Fix login', 'status' => 'pending', 'priority' => 'high']);
+    Task::factory()->create(['title' => 'Fix login CSS', 'status' => 'completed', 'priority' => 'high']);
+    Task::factory()->create(['title' => 'Add dashboard', 'status' => 'pending', 'priority' => 'high']);
+
+    $response = $this->getJson(route('tasks.index', [
+        'search' => 'login',
+        'status' => 'pending',
+        'priority' => 'high',
+    ]));
+
+    $response->assertOk()->assertJsonCount(1, 'data');
+    expect($response->json('data.0.title'))->toBe('Fix login');
+});
+
+it('returns empty results when search matches nothing', function () {
+    Task::factory()->count(3)->create();
+
+    $response = $this->getJson(route('tasks.index', ['search' => 'nonexistent_xyz']));
+
+    $response->assertOk()->assertJsonCount(0, 'data');
+});

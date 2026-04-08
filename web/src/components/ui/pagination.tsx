@@ -1,3 +1,4 @@
+import type { ReactElement } from 'react';
 import {
   ChevronLeftIcon,
   ChevronRightIcon,
@@ -44,7 +45,7 @@ export function Pagination({
   perPage,
   onPageChange,
   onPerPageChange,
-}: PaginationProps) {
+}: PaginationProps): ReactElement {
   const pages = getPageNumbers(currentPage, lastPage);
 
   return (

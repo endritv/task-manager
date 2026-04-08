@@ -1,4 +1,5 @@
-import { useState, useMemo, useCallback } from 'react';
+import type { ReactElement } from 'react';
+import { useState, useCallback } from 'react';
 import { PlusIcon, MagnifyingGlassIcon, ExclamationTriangleIcon } from '@heroicons/react/24/outline';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
@@ -22,16 +23,30 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Pagination } from '@/components/ui/pagination';
 import { useTasks } from '@/hooks/useTasks';
 import { getApiError } from '@/utils/getApiError';
-import type { TaskStatus, CreateTaskDto } from '@/types/task.types';
+import type {
+  TaskStatus,
+  TaskPriority,
+  StatusFilter,
+  PriorityFilter,
+  SortField,
+  CreateTaskDto,
+} from '@/types/task.types';
 
-const statusLabels: Record<string, string> = {
+const statusLabels: Record<StatusFilter, string> = {
   all: 'All Status',
   pending: 'Pending',
   in_progress: 'In Progress',
   completed: 'Completed',
 };
 
-const sortLabels: Record<string, string> = {
+const priorityLabels: Record<PriorityFilter, string> = {
+  all: 'All Priority',
+  low: 'Low',
+  medium: 'Medium',
+  high: 'High',
+};
+
+const sortLabels = {
   '-created_at': 'Newest First',
   created_at: 'Oldest First',
   '-priority': 'Priority (High)',
@@ -39,14 +54,22 @@ const sortLabels: Record<string, string> = {
   title: 'Title (A-Z)',
   '-due_date': 'Due Date (Latest)',
   due_date: 'Due Date (Earliest)',
-};
+} as const;
 
-export function TaskList() {
+type SortKey = keyof typeof sortLabels;
+
+export function TaskList(): ReactElement {
   const {
     tasks,
     meta,
     loading,
     error,
+    search,
+    setSearch,
+    statusFilter,
+    setStatusFilter,
+    priorityFilter,
+    setPriorityFilter,
     setPage,
     perPage,
     setPerPage,
@@ -59,22 +82,10 @@ export function TaskList() {
     deleteTask,
   } = useTasks();
 
-  const [search, setSearch] = useState('');
-  const [statusFilter, setStatusFilter] = useState<TaskStatus | 'all'>('all');
   const [showForm, setShowForm] = useState(false);
 
-  const filtered = useMemo(
-    () =>
-      tasks.filter(
-        (t) =>
-          t.title.toLowerCase().includes(search.toLowerCase()) &&
-          (statusFilter === 'all' || t.status === statusFilter)
-      ),
-    [tasks, search, statusFilter]
-  );
-
   const handleStatusChange = useCallback(
-    async (id: number, status: TaskStatus) => {
+    async (id: number, status: TaskStatus): Promise<void> => {
       try {
         await updateTask(id, { status });
         toast.success('Status updated');
@@ -86,7 +97,7 @@ export function TaskList() {
   );
 
   const handleEdit = useCallback(
-    async (id: number, dto: CreateTaskDto) => {
+    async (id: number, dto: CreateTaskDto): Promise<void> => {
       await updateTask(id, dto);
       toast.success('Task updated');
     },
@@ -94,7 +105,7 @@ export function TaskList() {
   );
 
   const handleDelete = useCallback(
-    async (id: number) => {
+    async (id: number): Promise<void> => {
       try {
         await deleteTask(id);
         toast.success('Task deleted');
@@ -105,30 +116,32 @@ export function TaskList() {
     [deleteTask]
   );
 
-  const handleCreate = async (dto: CreateTaskDto) => {
+  const handleCreate = async (dto: CreateTaskDto): Promise<void> => {
     await createTask(dto);
     setShowForm(false);
     toast.success('Task created');
   };
 
-  const handleSortChange = (value: string) => {
+  const handleSortChange = (value: string): void => {
     if (value.startsWith('-')) {
-      setSortBy(value.slice(1));
+      setSortBy(value.slice(1) as SortField);
       setDirection('desc');
     } else {
-      setSortBy(value);
+      setSortBy(value as SortField);
       setDirection('asc');
     }
     setPage(1);
   };
 
+  const currentSortKey = (direction === 'desc' ? `-${sortBy}` : sortBy) as SortKey;
+
   if (error) {
     return (
-      <div className="flex flex-col items-center justify-center rounded-lg border border-dashed p-8 text-center sm:p-12">
+      <div className="flex flex-col items-center justify-start rounded-lg border border-dashed p-8 text-center sm:p-12 min-h-[calc(100vh-340px)]">
         <ExclamationTriangleIcon className="size-10 text-muted-foreground" />
         <p className="mt-3 font-medium">Unable to connect</p>
         <p className="mt-1 text-sm text-muted-foreground">
-          Make sure the API server is running on port 8000
+          Please contact support!
         </p>
       </div>
     );
@@ -163,15 +176,15 @@ export function TaskList() {
 
         <div className="flex gap-2">
           <Select
-            value={statusFilter}
+            value={statusFilter ?? 'all'}
             onValueChange={(val) => {
               if (!val) return;
-              setStatusFilter(val as TaskStatus | 'all');
+              setStatusFilter(val === 'all' ? undefined : (val as TaskStatus));
               setPage(1);
             }}
           >
             <SelectTrigger className="flex-1 sm:w-[140px]">
-              <SelectValue>{statusLabels[statusFilter]}</SelectValue>
+              <SelectValue>{statusLabels[statusFilter ?? 'all']}</SelectValue>
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Status</SelectItem>
@@ -182,11 +195,30 @@ export function TaskList() {
           </Select>
 
           <Select
-            value={direction === 'desc' ? `-${sortBy}` : sortBy}
+            value={priorityFilter ?? 'all'}
+            onValueChange={(val) => {
+              if (!val) return;
+              setPriorityFilter(val === 'all' ? undefined : (val as TaskPriority));
+              setPage(1);
+            }}
+          >
+            <SelectTrigger className="flex-1 sm:w-[140px]">
+              <SelectValue>{priorityLabels[priorityFilter ?? 'all']}</SelectValue>
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Priority</SelectItem>
+              <SelectItem value="low">Low</SelectItem>
+              <SelectItem value="medium">Medium</SelectItem>
+              <SelectItem value="high">High</SelectItem>
+            </SelectContent>
+          </Select>
+
+          <Select
+            value={currentSortKey}
             onValueChange={(val) => { if (val) handleSortChange(val); }}
           >
             <SelectTrigger className="flex-1 sm:w-[160px]">
-              <SelectValue>{sortLabels[direction === 'desc' ? `-${sortBy}` : sortBy]}</SelectValue>
+              <SelectValue>{sortLabels[currentSortKey] ?? 'Sort'}</SelectValue>
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="-created_at">Newest First</SelectItem>
@@ -228,17 +260,17 @@ export function TaskList() {
             </div>
           ))}
         </div>
-      ) : filtered.length === 0 ? (
-        <div className="flex flex-col items-center justify-center rounded-lg border border-dashed p-8 text-center sm:p-12">
+      ) : tasks.length === 0 ? (
+        <div className="flex flex-col items-center justify-start rounded-lg border border-dashed p-8 text-center sm:p-12 min-h-[calc(100vh-340px)]">
           <p className="text-sm text-muted-foreground sm:text-base">
-            {search || statusFilter !== 'all'
+            {search || statusFilter || priorityFilter
               ? 'No tasks match your filters'
               : 'No tasks yet. Create your first one!'}
           </p>
         </div>
       ) : (
         <div className="grid gap-3">
-          {filtered.map((task) => (
+          {tasks.map((task) => (
             <TaskCard
               key={task.id}
               task={task}

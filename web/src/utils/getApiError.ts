@@ -1,20 +1,28 @@
-import type { AxiosError } from 'axios';
+import axios, { type AxiosError } from 'axios';
 
 interface ApiValidationError {
   message: string;
   errors?: Record<string, string[]>;
 }
 
-export function getApiError(error: unknown): string {
-  const axiosError = error as AxiosError<ApiValidationError>;
+function isApiValidationError(data: unknown): data is ApiValidationError {
+  return typeof data === 'object' && data !== null && 'message' in data;
+}
 
-  if (axiosError.response?.data?.errors) {
-    const fieldErrors = Object.values(axiosError.response.data.errors).flat();
-    return fieldErrors[0] ?? 'Validation failed';
+export function getApiError(error: unknown): string {
+  if (!axios.isAxiosError(error)) {
+    return 'Something went wrong';
   }
 
-  if (axiosError.response?.data?.message) {
-    return axiosError.response.data.message;
+  const axiosError: AxiosError<unknown> = error;
+  const data = axiosError.response?.data;
+
+  if (isApiValidationError(data)) {
+    if (data.errors) {
+      const firstError = Object.values(data.errors).flat()[0];
+      return firstError ?? 'Validation failed';
+    }
+    return data.message;
   }
 
   if (axiosError.code === 'ERR_NETWORK') {
@@ -25,12 +33,12 @@ export function getApiError(error: unknown): string {
 }
 
 export function getFieldErrors(error: unknown): Record<string, string> | null {
-  const axiosError = error as AxiosError<ApiValidationError>;
-  const errors = axiosError.response?.data?.errors;
+  if (!axios.isAxiosError(error)) return null;
 
-  if (!errors) return null;
+  const data = error.response?.data;
+  if (!isApiValidationError(data) || !data.errors) return null;
 
   return Object.fromEntries(
-    Object.entries(errors).map(([field, messages]) => [field, messages[0]])
+    Object.entries(data.errors).map(([field, messages]) => [field, messages[0]])
   );
 }

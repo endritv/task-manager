@@ -20,11 +20,11 @@ final class TaskService
     {
         try {
             $task = Task::create([
-                'title'       => $data->title,
+                'title' => $data->title,
                 'description' => $data->description,
-                'status'      => $data->status,
-                'priority'    => $data->priority,
-                'due_date'    => $data->dueDate,
+                'status' => $data->status,
+                'priority' => $data->priority,
+                'due_date' => $data->dueDate,
             ]);
 
             Log::info('Task created', ['id' => $task->id, 'title' => $task->title]);
@@ -43,11 +43,11 @@ final class TaskService
     {
         try {
             $fields = array_filter([
-                'title'       => $data->title,
+                'title' => $data->title,
                 'description' => $data->description,
-                'status'      => $data->status,
-                'priority'    => $data->priority,
-                'due_date'    => $data->dueDate,
+                'status' => $data->status,
+                'priority' => $data->priority,
+                'due_date' => $data->dueDate,
             ], fn ($value) => $value !== null);
 
             $task->update($fields);
@@ -58,7 +58,7 @@ final class TaskService
         } catch (Throwable $e) {
             Log::error('Failed to update task', [
                 'id' => $task->id,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
             throw $e;
         }
@@ -78,7 +78,7 @@ final class TaskService
         } catch (Throwable $e) {
             Log::error('Failed to delete task', [
                 'id' => $task->id,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
             throw $e;
         }
@@ -88,8 +88,28 @@ final class TaskService
         string $sortBy = 'created_at',
         string $direction = 'desc',
         int $perPage = 15,
+        ?string $search = null,
+        ?string $status = null,
+        ?string $priority = null,
     ): LengthAwarePaginator {
-        return Task::orderBy(
+        $query = Task::query();
+
+        if ($search !== null && $search !== '') {
+            $query->where(function ($q) use ($search) {
+                $q->where('title', 'ilike', "%{$search}%")
+                    ->orWhere('description', 'ilike', "%{$search}%");
+            });
+        }
+
+        if ($status !== null && $status !== '') {
+            $query->where('status', $status);
+        }
+
+        if ($priority !== null && $priority !== '') {
+            $query->where('priority', $priority);
+        }
+
+        return $query->orderBy(
             in_array($sortBy, self::ALLOWED_SORTS) ? $sortBy : 'created_at',
             $direction === 'asc' ? 'asc' : 'desc',
         )->paginate($perPage);
@@ -98,8 +118,8 @@ final class TaskService
     public function stats(): array
     {
         return [
-            'total'      => Task::count(),
-            'byStatus'   => Task::selectRaw('status, count(*) as count')
+            'total' => Task::count(),
+            'byStatus' => Task::selectRaw('status, count(*) as count')
                 ->groupBy('status')
                 ->pluck('count', 'status'),
             'byPriority' => Task::selectRaw('priority, count(*) as count')

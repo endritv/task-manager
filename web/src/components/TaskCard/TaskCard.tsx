@@ -1,3 +1,4 @@
+import type { ReactElement } from 'react';
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { TrashIcon, PencilIcon, CalendarIcon } from '@heroicons/react/24/outline';
 import { Button } from '@/components/ui/button';
@@ -38,7 +39,7 @@ const nextStatus: Record<TaskStatus, TaskStatus> = {
   completed: 'pending',
 };
 
-export function TaskCard({ task, onStatusChange, onEdit, onDelete }: TaskCardProps) {
+export function TaskCard({ task, onStatusChange, onEdit, onDelete }: TaskCardProps): ReactElement {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [expanded, setExpanded] = useState(false);
@@ -59,7 +60,7 @@ export function TaskCard({ task, onStatusChange, onEdit, onDelete }: TaskCardPro
     setShowDeleteDialog(false);
   }, [task.id, onDelete]);
 
-  const handleEdit = async (dto: CreateTaskDto) => {
+  const handleEdit = async (dto: CreateTaskDto): Promise<void> => {
     await onEdit(task.id, dto);
     setShowEditDialog(false);
   };

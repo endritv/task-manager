@@ -1,3 +1,4 @@
+import type { ReactElement } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useTaskStats } from '@/hooks/useTaskStats';
 
@@ -25,7 +26,7 @@ const priorityColors = {
   high: 'bg-red-100 text-red-800',
 } as const;
 
-export function Dashboard() {
+export function Dashboard(): ReactElement | null {
   const { stats, loading, error } = useTaskStats();
 
   if (loading) {

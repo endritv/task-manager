@@ -5,20 +5,27 @@ import type {
   CreateTaskDto,
   UpdateTaskDto,
   PaginatedResponse,
+  SortField,
+  SortDirection,
+  TaskStatus,
+  TaskPriority,
 } from '../types/task.types';
 
-interface ListParams {
+export interface ListParams {
   page?: number;
   perPage?: number;
-  sort?: string;
-  direction?: 'asc' | 'desc';
+  sort?: SortField;
+  direction?: SortDirection;
+  search?: string;
+  status?: TaskStatus;
+  priority?: TaskPriority;
 }
 
 export const tasksApi = {
   getAll: async (params: ListParams = {}): Promise<PaginatedResponse<Task>> => {
-    const { page, perPage: per_page, sort, direction } = params;
+    const { page, perPage: per_page, sort, direction, search, status, priority } = params;
     const { data } = await client.get<PaginatedResponse<Task>>('/tasks', {
-      params: { page, per_page, sort, direction },
+      params: { page, per_page, sort, direction, search, status, priority },
     });
     return data;
   },

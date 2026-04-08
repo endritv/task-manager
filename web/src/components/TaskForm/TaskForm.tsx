@@ -1,3 +1,4 @@
+import type { ReactElement } from 'react';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -30,7 +31,7 @@ interface TaskFormProps {
   onCancel: () => void;
 }
 
-export function TaskForm({ task, onSubmit, onCancel }: TaskFormProps) {
+export function TaskForm({ task, onSubmit, onCancel }: TaskFormProps): ReactElement {
   const isEditing = !!task;
 
   const [title, setTitle] = useState(task?.title ?? '');

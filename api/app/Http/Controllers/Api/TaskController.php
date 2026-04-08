@@ -31,11 +31,14 @@ final class TaskController extends ApiController
     /**
      * List tasks
      *
-     * Returns a paginated list of tasks with optional sorting.
+     * Returns a paginated list of tasks with optional sorting, searching, and filtering.
      *
      * @queryParam sort string Sort field. Allowed: created_at, due_date, priority, status, title. Example: created_at
      * @queryParam direction string Sort direction. Allowed: asc, desc. Example: desc
      * @queryParam per_page integer Items per page (max 50). Example: 15
+     * @queryParam search string Search tasks by title or description. Example: authentication
+     * @queryParam status string Filter by status. Allowed: pending, in_progress, completed. Example: pending
+     * @queryParam priority string Filter by priority. Allowed: low, medium, high. Example: high
      */
     public function index(Request $request): ResourceCollection
     {
@@ -45,6 +48,9 @@ final class TaskController extends ApiController
                     sortBy: $request->query('sort', 'created_at'),
                     direction: $request->query('direction', 'desc'),
                     perPage: min((int) $request->query('per_page', 15), 50),
+                    search: $request->query('search'),
+                    status: $request->query('status'),
+                    priority: $request->query('priority'),
                 )
             )
         );
@@ -90,6 +96,7 @@ final class TaskController extends ApiController
      * Updates a task. Only send the fields you want to change.
      *
      * @urlParam task integer required The task ID. Example: 1
+     *
      * @bodyParam title string optional Updated title. Max 100 characters. Example: Updated title
      * @bodyParam status string optional Updated status. Allowed: pending, in_progress, completed. Example: completed
      * @bodyParam priority string optional Updated priority. Allowed: low, medium, high. Example: low

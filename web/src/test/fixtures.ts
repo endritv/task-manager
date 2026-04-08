@@ -11,9 +11,20 @@ export const mockTask: Task = {
   updatedAt: '2026-04-08T00:00:00Z',
 };
 
+export const mockTask2: Task = {
+  id: 2,
+  title: 'Task 2',
+  description: 'Second task',
+  status: 'in_progress',
+  priority: 'high',
+  dueDate: '2026-05-01T00:00:00Z',
+  createdAt: '2026-04-08T00:00:00Z',
+  updatedAt: '2026-04-08T00:00:00Z',
+};
+
 export const mockPaginatedTasks: PaginatedResponse<Task> = {
-  data: [mockTask],
-  meta: { current_page: 1, last_page: 1, per_page: 15, total: 1 },
+  data: [mockTask, mockTask2],
+  meta: { current_page: 1, last_page: 1, per_page: 15, total: 2 },
   links: { first: '', prev: null, next: null, last: '' },
 };
 

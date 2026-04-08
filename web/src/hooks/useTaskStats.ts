@@ -2,12 +2,19 @@ import { useState, useEffect } from 'react';
 import { tasksApi } from '../api/tasks.api';
 import type { TaskStats } from '../types/task.types';
 
-export function useTaskStats() {
+export interface UseTaskStatsReturn {
+  stats: TaskStats | null;
+  loading: boolean;
+  error: string | null;
+  refetch: () => Promise<void>;
+}
+
+export function useTaskStats(): UseTaskStatsReturn {
   const [stats, setStats] = useState<TaskStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchStats = async () => {
+  const fetchStats = async (): Promise<void> => {
     try {
       setLoading(true);
       setError(null);
