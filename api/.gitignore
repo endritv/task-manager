@@ -16,8 +16,11 @@
 /public/build
 /public/hot
 /public/storage
+/bootstrap/cache
 /storage/*.key
 /storage/pail
+/storage/logs
+/storage/framework
 /vendor
 _ide_helper.php
 Homestead.json
@@ -27,3 +30,4 @@ Thumbs.db
 .phpstorm.meta.php
 _ide_helper_models.php
 storage/debugbar
+/coverage

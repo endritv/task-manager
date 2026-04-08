@@ -66,7 +66,6 @@
         ],
         "test:parallel": [
             "@php artisan config:clear --ansi",
-            "sh tests/create-parallel-databases.sh",
             "@php artisan test --parallel"
         ],
         "post-autoload-dump": [

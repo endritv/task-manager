@@ -1,20 +1,3 @@
-# Laravel/PHP
-api/vendor/
-api/.env
-api/storage/logs/
-api/storage/framework/cache/
-api/storage/framework/sessions/
-api/storage/framework/views/
-api/bootstrap/cache/
-api/.phpunit.result.cache
-api/coverage/
-
-# Node/React
-web/node_modules/
-web/dist/
-web/.env
-web/.env.local
-
 # OS
 .DS_Store
 Thumbs.db
