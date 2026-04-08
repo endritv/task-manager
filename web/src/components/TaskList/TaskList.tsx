@@ -1,5 +1,5 @@
 import { useState, useMemo, useCallback } from 'react';
-import { PlusIcon, MagnifyingGlassIcon } from '@heroicons/react/24/outline';
+import { PlusIcon, MagnifyingGlassIcon, ExclamationTriangleIcon } from '@heroicons/react/24/outline';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -17,8 +17,26 @@ import {
 } from '@/components/ui/dialog';
 import { TaskCard } from '@/components/TaskCard/TaskCard';
 import { TaskForm } from '@/components/TaskForm/TaskForm';
+import { Skeleton } from '@/components/ui/skeleton';
 import { useTasks } from '@/hooks/useTasks';
 import type { TaskStatus } from '@/types/task.types';
+
+const statusLabels: Record<string, string> = {
+  all: 'All Status',
+  pending: 'Pending',
+  in_progress: 'In Progress',
+  completed: 'Completed',
+};
+
+const sortLabels: Record<string, string> = {
+  '-created_at': 'Newest First',
+  created_at: 'Oldest First',
+  '-priority': 'Priority (High)',
+  priority: 'Priority (Low)',
+  title: 'Title (A-Z)',
+  '-due_date': 'Due Date (Latest)',
+  due_date: 'Due Date (Earliest)',
+};
 
 export function TaskList() {
   const {
@@ -83,8 +101,12 @@ export function TaskList() {
 
   if (error) {
     return (
-      <div className="flex items-center justify-center p-12">
-        <p className="text-destructive">{error}</p>
+      <div className="flex flex-col items-center justify-center rounded-lg border border-dashed p-12 text-center">
+        <ExclamationTriangleIcon className="size-10 text-muted-foreground" />
+        <p className="mt-3 font-medium">Unable to connect</p>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Make sure the API server is running on port 8000
+        </p>
       </div>
     );
   }
@@ -124,7 +146,7 @@ export function TaskList() {
           }}
         >
           <SelectTrigger className="w-35">
-            <SelectValue placeholder="Status" />
+            <SelectValue>{statusLabels[statusFilter]}</SelectValue>
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Status</SelectItem>
@@ -139,7 +161,7 @@ export function TaskList() {
           onValueChange={(val) => { if (val) handleSortChange(val); }}
         >
           <SelectTrigger className="w-40">
-            <SelectValue placeholder="Sort by" />
+            <SelectValue>{sortLabels[direction === 'desc' ? `-${sortBy}` : sortBy]}</SelectValue>
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="-created_at">Newest First</SelectItem>
@@ -155,8 +177,23 @@ export function TaskList() {
 
       {/* Task List */}
       {loading ? (
-        <div className="flex items-center justify-center p-12">
-          <div className="size-8 animate-spin rounded-full border-4 border-muted border-t-primary" />
+        <div className="grid gap-3">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="rounded-lg border bg-card p-4 shadow-sm">
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0 flex-1 space-y-2">
+                  <Skeleton className="h-5 w-3/5" />
+                  <Skeleton className="h-4 w-2/5" />
+                </div>
+                <Skeleton className="size-8 shrink-0 rounded-md" />
+              </div>
+              <div className="mt-3 flex items-center gap-2">
+                <Skeleton className="h-5 w-20 rounded-full" />
+                <Skeleton className="h-5 w-14 rounded-full" />
+                <Skeleton className="h-4 w-24" />
+              </div>
+            </div>
+          ))}
         </div>
       ) : filtered.length === 0 ? (
         <div className="flex flex-col items-center justify-center rounded-lg border border-dashed p-12 text-center">

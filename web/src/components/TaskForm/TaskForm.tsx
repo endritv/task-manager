@@ -11,6 +11,18 @@ import {
 } from '@/components/ui/select';
 import type { CreateTaskDto, TaskStatus, TaskPriority } from '@/types/task.types';
 
+const priorityLabels: Record<TaskPriority, string> = {
+  low: 'Low',
+  medium: 'Medium',
+  high: 'High',
+};
+
+const statusLabels: Record<TaskStatus, string> = {
+  pending: 'Pending',
+  in_progress: 'In Progress',
+  completed: 'Completed',
+};
+
 interface TaskFormProps {
   onSubmit: (dto: CreateTaskDto) => Promise<void>;
   onCancel: () => void;
@@ -83,9 +95,9 @@ export function TaskForm({ onSubmit, onCancel }: TaskFormProps) {
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label>Priority</Label>
-          <Select value={priority} onValueChange={(val) => setPriority(val as TaskPriority)}>
+          <Select value={priority} onValueChange={(val) => { if (val) setPriority(val as TaskPriority); }}>
             <SelectTrigger className="w-full">
-              <SelectValue />
+              <SelectValue>{priorityLabels[priority]}</SelectValue>
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="low">Low</SelectItem>
@@ -97,9 +109,9 @@ export function TaskForm({ onSubmit, onCancel }: TaskFormProps) {
 
         <div className="space-y-2">
           <Label>Status</Label>
-          <Select value={status} onValueChange={(val) => setStatus(val as TaskStatus)}>
+          <Select value={status} onValueChange={(val) => { if (val) setStatus(val as TaskStatus); }}>
             <SelectTrigger className="w-full">
-              <SelectValue />
+              <SelectValue>{statusLabels[status]}</SelectValue>
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="pending">Pending</SelectItem>

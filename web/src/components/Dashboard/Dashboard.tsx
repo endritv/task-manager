@@ -1,3 +1,4 @@
+import { Skeleton } from '@/components/ui/skeleton';
 import { useTaskStats } from '@/hooks/useTaskStats';
 
 const statusLabels = {
@@ -29,8 +30,28 @@ export function Dashboard() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center p-12">
-        <div className="size-8 animate-spin rounded-full border-4 border-muted border-t-primary" />
+      <div className="space-y-6">
+        <Skeleton className="h-8 w-36" />
+        <div className="rounded-lg border bg-card p-6 shadow-sm space-y-2">
+          <Skeleton className="h-4 w-24" />
+          <Skeleton className="h-10 w-16" />
+        </div>
+        {Array.from({ length: 2 }).map((_, i) => (
+          <div key={i}>
+            <Skeleton className="mb-3 h-6 w-28" />
+            <div className="grid grid-cols-3 gap-4">
+              {Array.from({ length: 3 }).map((_, j) => (
+                <div key={j} className="rounded-lg border bg-card p-4 shadow-sm space-y-2">
+                  <div className="flex items-center justify-between">
+                    <Skeleton className="h-4 w-20" />
+                    <Skeleton className="h-5 w-16 rounded-full" />
+                  </div>
+                  <Skeleton className="h-9 w-10" />
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
       </div>
     );
   }
