@@ -19,17 +19,13 @@ final class TaskService
     public function create(CreateTaskData $data): Task
     {
         try {
-            $task = Task::create([
+            return Task::create([
                 'title' => $data->title,
                 'description' => $data->description,
                 'status' => $data->status,
                 'priority' => $data->priority,
                 'due_date' => $data->dueDate,
             ]);
-
-            Log::info('Task created', ['id' => $task->id, 'title' => $task->title]);
-
-            return $task;
         } catch (Throwable $e) {
             Log::error('Failed to create task', ['error' => $e->getMessage(), 'title' => $data->title]);
             throw $e;
@@ -52,8 +48,6 @@ final class TaskService
 
             $task->update($fields);
 
-            Log::info('Task updated', ['id' => $task->id, 'fields' => array_keys($fields)]);
-
             return $task->fresh();
         } catch (Throwable $e) {
             Log::error('Failed to update task', [
@@ -70,11 +64,7 @@ final class TaskService
     public function delete(Task $task): void
     {
         try {
-            $id = $task->id;
-            $title = $task->title;
-
             $task->delete();
-            Log::info('Task deleted', ['id' => $id, 'title' => $title]);
         } catch (Throwable $e) {
             Log::error('Failed to delete task', [
                 'id' => $task->id,

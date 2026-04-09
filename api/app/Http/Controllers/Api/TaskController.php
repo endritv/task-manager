@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Actions\CreateTaskAction;
+use App\Actions\DeleteTaskAction;
 use App\Actions\UpdateTaskAction;
 use App\DTO\CreateTaskData;
 use App\DTO\UpdateTaskData;
@@ -120,9 +121,9 @@ final class TaskController extends ApiController
      *
      * @throws Throwable
      */
-    public function destroy(Task $task): Response
+    public function destroy(Task $task, DeleteTaskAction $action): Response
     {
-        $this->service->delete($task);
+        $action->execute($task);
 
         return $this->noContent();
     }

@@ -3,8 +3,10 @@
 namespace App\Actions;
 
 use App\DTO\CreateTaskData;
+use App\Events\TaskCreated;
 use App\Models\Task;
 use App\Services\TaskService;
+use Throwable;
 
 final readonly class CreateTaskAction
 {
@@ -12,8 +14,15 @@ final readonly class CreateTaskAction
         private TaskService $service,
     ) {}
 
+    /**
+     * @throws Throwable
+     */
     public function execute(CreateTaskData $data): Task
     {
-        return $this->service->create($data);
+        $task = $this->service->create($data);
+
+        TaskCreated::dispatch($task);
+
+        return $task;
     }
 }

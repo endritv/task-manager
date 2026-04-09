@@ -70,17 +70,19 @@ npm run dev
 task-manager/
 ├── api/                          # Laravel 13 backend
 │   ├── app/
-│   │   ├── Actions/              # Single-purpose action classes
-│   │   ├── DTO/                  # Data Transfer Objects
+│   │   ├── Actions/              # Use-case orchestration + event dispatch
+│   │   ├── DTO/                  # Data Transfer Objects (readonly)
 │   │   ├── Enums/                # TaskStatus, TaskPriority
+│   │   ├── Events/               # Domain events (TaskCreated, etc.)
 │   │   ├── Exceptions/           # Global API exception handler
 │   │   ├── Http/
 │   │   │   ├── Controllers/Api/  # TaskController + ApiController base
 │   │   │   ├── Middleware/       # Request logging
 │   │   │   ├── Requests/         # FormRequest validation
 │   │   │   └── Resources/        # API response transformation
+│   │   ├── Listeners/            # Event listeners (audit logging)
 │   │   ├── Models/               # Eloquent models with casts
-│   │   └── Services/             # Business logic + data access
+│   │   └── Services/             # Data persistence + error handling
 │   └── tests/                    # Pest tests (100% coverage)
 ├── web/                          # React 19 + TypeScript frontend
 │   └── src/
@@ -105,12 +107,16 @@ task-manager/
 ### Backend: Action + Service + DTO Pattern
 
 ```
-Request -> FormRequest (validates) -> Controller -> DTO::fromRequest() -> Action -> Service -> Model
+Request -> FormRequest (validates) -> Controller -> DTO -> Action -> Service -> Model
+                                                            |
+                                                         Event -> Listener (audit log)
 ```
 
 - **Controller**: thin HTTP layer, delegates everything
-- **Action**: single use case (CreateTaskAction, UpdateTaskAction)
-- **Service**: business logic, data access, logging, error handling
+- **Action**: orchestrates use case, dispatches domain events
+- **Service**: data persistence, error handling
+- **Event**: domain events (TaskCreated, TaskUpdated, TaskDeleted)
+- **Listener**: reacts to events (audit logging to dedicated channel + other stuff can be added like mail dispatches etc)
 - **DTO**: readonly typed value objects for data transfer
 - **FormRequest**: validation rules with enum support
 - **Resource**: response transformation (snake_case -> camelCase)

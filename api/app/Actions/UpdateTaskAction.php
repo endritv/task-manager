@@ -3,6 +3,7 @@
 namespace App\Actions;
 
 use App\DTO\UpdateTaskData;
+use App\Events\TaskUpdated;
 use App\Models\Task;
 use App\Services\TaskService;
 use Throwable;
@@ -18,6 +19,10 @@ final readonly class UpdateTaskAction
      */
     public function execute(Task $task, UpdateTaskData $data): Task
     {
-        return $this->service->update($task, $data);
+        $updated = $this->service->update($task, $data);
+
+        TaskUpdated::dispatch($updated);
+
+        return $updated;
     }
 }

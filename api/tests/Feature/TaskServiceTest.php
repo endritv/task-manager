@@ -29,52 +29,6 @@ it('creates a task from DTO', function () {
         ->and($task->priority)->toBe(TaskPriority::High);
 });
 
-it('logs info when a task is created', function () {
-    Log::spy();
-
-    $dto = new CreateTaskData(
-        title: 'Log test',
-        description: null,
-        status: TaskStatus::Pending,
-        priority: TaskPriority::Medium,
-        dueDate: null,
-    );
-
-    $this->service->create($dto);
-
-    Log::shouldHaveReceived('info')
-        ->withArgs(fn (string $message, array $context) => $message === 'Task created' && $context['title'] === 'Log test'
-        )
-        ->once();
-});
-
-it('logs info when a task is updated', function () {
-    Log::spy();
-
-    $task = Task::factory()->create(['title' => 'Original']);
-    $dto = new UpdateTaskData(title: 'Updated', description: null, status: null, priority: null, dueDate: null);
-
-    $this->service->update($task, $dto);
-
-    Log::shouldHaveReceived('info')
-        ->withArgs(fn (string $message, array $context) => $message === 'Task updated' && in_array('title', $context['fields'])
-        )
-        ->once();
-});
-
-it('logs info when a task is deleted', function () {
-    Log::spy();
-
-    $task = Task::factory()->create(['title' => 'Delete me']);
-
-    $this->service->delete($task);
-
-    Log::shouldHaveReceived('info')
-        ->withArgs(fn (string $message, array $context) => $message === 'Task deleted' && $context['title'] === 'Delete me'
-        )
-        ->once();
-});
-
 it('logs error and re-throws on create failure', function () {
     Log::spy();
 
